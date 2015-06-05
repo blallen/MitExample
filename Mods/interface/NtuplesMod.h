@@ -17,6 +17,7 @@ namespace mithep {
   public:
     NtuplesMod(char const* name = "NtuplesMod", char const* title = "Flat-tree ntuples producer");
     void SetTagElectronsName(char const* _name) { fTagElectronsName = _name; }
+    void SetProbeElectronsName(char const* _name) { fProbeElectronsName = _name; }
     void SetProbePhotonsName(char const* _name) { fProbePhotonsName = _name; }
     void SetTriggerObjectsName(char const* _name) { fTriggerObjectsName = _name; }
     void SetTriggerMatchName(char const* _name) { fTriggerMatchName = _name; }
@@ -27,11 +28,13 @@ namespace mithep {
     void SlaveTerminate() override;
 
     TString fTagElectronsName;
+    TString fProbeElectronsName;
     TString fProbePhotonsName;
     TString fTriggerObjectsName;
     TString fTriggerMatchName;
 
     ElectronCol const* fTagElectrons;
+    ElectronCol const* fProbeElectrons;
     PhotonCol const* fProbePhotons;
     TriggerObjectCol const* fTriggerObjects;
 

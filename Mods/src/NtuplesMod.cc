@@ -26,9 +26,11 @@ void
 mithep::NtuplesMod::Process()
 {
   LoadEventObject(fTagElectronsName, fTagElectrons);
-  LoadEventObject(fProbePhotonsName, fProbePhotons);
+  LoadEventObject(fProbeElectronsName, fProbeElectrons);
+  //LoadEventObject(fProbePhotonsName, fProbePhotons);
 
-  if (!fTagElectrons || !fProbePhotons) {
+  //if (!fTagElectrons || !fProbePhotons) {
+  if (!fTagElectrons || !fProbeElectrons) {
     std::cerr << "Could not find electrons in the event." << std::endl;
     return;
   }
@@ -78,6 +80,7 @@ mithep::NtuplesMod::Process()
     tags.push_back(&inEle);
   }
 
+  /*
   std::vector<Photon const*> probes;
   for (unsigned iP(0); iP != fProbePhotons->GetEntries(); ++iP) {
     Photon const& inPh(*fProbePhotons->At(iP));
@@ -86,11 +89,22 @@ mithep::NtuplesMod::Process()
 
     probes.push_back(&inPh);
   }
+  */
+
+  std::vector<Electron const*> probes;
+  for (unsigned iP(0); iP != fProbeElectrons->GetEntries(); ++iP) {
+    Electron const& inPh(*fProbeElectrons->At(iP));
+
+    // apply some additional cuts to probe
+
+    probes.push_back(&inPh);
+  }
+  
 
   fEvent.clear();
 
   for (Electron const* tag : tags) {
-    for (Photon const* probe : probes) {
+    for (Electron const* probe : probes) {
       // candidates overlap in supercluster -> a same EG object
       if (tag->SCluster() == probe->SCluster())
         continue;
