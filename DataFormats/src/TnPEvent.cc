@@ -65,6 +65,7 @@ mithep::TnPEvent::bookBranches(TTree& _tree)
   _tree.Branch("probe.py", probePy, "py[nPairs]/F");
   _tree.Branch("probe.pz", probePz, "pz[nPairs]/F");
   _tree.Branch("probe.energy", probeEnergy, "energy[nPairs]/F");
+  _tree.Branch("probe.passID", probePassid, "passID[nPairs]/i");
 }
 
 void
@@ -138,6 +139,10 @@ mithep::TnPEvent::setAddress(TTree& _tree)
     _tree.SetBranchAddress("probe.energy", probeEnergy);
   else if (!_tree.GetBranch("probe.energy"))
     notFound.push_back("probe.energy");
+  if (_tree.GetBranchStatus("probe.passID"))
+    _tree.SetBranchAddress("probe.passID", probePassid);
+  else if (!_tree.GetBranch("probe.passID"))
+    notFound.push_back("probe.passID");
 
   for (unsigned iN(0); iN != notFound.size(); ++iN)
     std::cerr << "Branch " << notFound[iN] << " not found in input" << std::endl;

@@ -19,6 +19,7 @@ namespace mithep {
     Float_t& py;
     Float_t& pz;
     Float_t& energy;
+    UInt_t&  passID;
 
   private:
     

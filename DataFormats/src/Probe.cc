@@ -11,6 +11,7 @@ mithep::Probe::Probe(TnPEvent& _evt, UInt_t _idx) :
   px(_evt.probePx[_idx]),
   py(_evt.probePy[_idx]),
   pz(_evt.probePz[_idx]),
-  energy(_evt.probeEnergy[_idx])
+  energy(_evt.probeEnergy[_idx]),
+  passID(_evt.probePassid[_idx])
 {
 }

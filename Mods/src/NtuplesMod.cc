@@ -12,6 +12,7 @@ ClassImp(mithep::NtuplesMod)
 mithep::NtuplesMod::NtuplesMod(char const* _name/* = "mithep::NtuplesMod"*/, char const* _title/* = "Flat-tree ntuples producer"*/) :
   BaseMod(_name, _title),
   fTagElectronsName("TagElectrons"),
+  fPassElectronsName("NoPassElectrons"),
   fProbeElectronsName("ProbeElectrons"),
   //fProbePhotonsName("ProbePhotons"),
   fTriggerObjectsName(mithep::Names::gkHltObjBrn),
@@ -27,11 +28,12 @@ void
 mithep::NtuplesMod::Process()
 {
   LoadEventObject(fTagElectronsName, fTagElectrons);
+  LoadEventObject(fPassElectronsName, fPassElectrons);
   LoadEventObject(fProbeElectronsName, fProbeElectrons);
   //LoadEventObject(fProbePhotonsName, fProbePhotons);
 
   //if (!fTagElectrons || !fProbePhotons) {
-  if (!fTagElectrons || !fProbeElectrons) {
+  if (!fTagElectrons || !fProbeElectrons || !fPassElectrons) {
     std::cerr << "Could not find electrons in the event." << std::endl;
     return;
   }
@@ -95,9 +97,9 @@ mithep::NtuplesMod::Process()
   std::vector<Electron const*> probes;
   for (unsigned iP(0); iP != fProbeElectrons->GetEntries(); ++iP) {
     Electron const& inEle(*fProbeElectrons->At(iP));
-
+        
     // apply some additional cuts to probe
-
+    
     probes.push_back(&inEle);
   }
   
@@ -129,6 +131,20 @@ mithep::NtuplesMod::Process()
       pair.second.py = probe->Py();
       pair.second.pz = probe->Pz();
       pair.second.energy = probe->E();
+
+      // Check if probe passes ID
+      unsigned passID(0);
+      unsigned iI(0);
+      for (; iI != fPassElectrons->GetEntries(); ++iI) {
+	Electron const& idEle(*fPassElectrons->At(iI));
+	
+	double dEta(idEle.Eta() - probe->Eta());
+	double dPhi(TVector2::Phi_mpi_pi(idEle.Phi() - probe->Phi()));
+	
+	if (dEta * dEta + dPhi * dPhi < 0.15 * 0.15)
+	  passID = 1;
+      }
+      pair.second.passID = passID;
     }
   }
 

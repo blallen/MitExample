@@ -52,6 +52,7 @@ namespace mithep {
     Float_t probePy[NMAX];
     Float_t probePz[NMAX];
     Float_t probeEnergy[NMAX];
+    UInt_t probePassid[NMAX];
   };
 
 }
