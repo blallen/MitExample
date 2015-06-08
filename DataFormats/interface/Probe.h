@@ -11,6 +11,7 @@ namespace mithep {
   public:
     Probe(TnPEvent&, UInt_t);
 
+    Float_t& charge;
     Float_t& pt;
     Float_t& eta;
     Float_t& phi;
@@ -20,6 +21,7 @@ namespace mithep {
     Float_t& energy;
 
   private:
+    
     Probe(); // hide default constructor
   };
 

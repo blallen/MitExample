@@ -4,6 +4,7 @@
 #include "MitExample/DataFormats/interface/TnPEvent.h"
 
 mithep::Tag::Tag(TnPEvent& _evt, UInt_t _idx) :
+  charge(_evt.tagCharge[_idx]),
   pt(_evt.tagPt[_idx]),
   eta(_evt.tagEta[_idx]),
   phi(_evt.tagPhi[_idx]),

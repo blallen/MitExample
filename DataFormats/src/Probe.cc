@@ -4,6 +4,7 @@
 #include "MitExample/DataFormats/interface/TnPEvent.h"
 
 mithep::Probe::Probe(TnPEvent& _evt, UInt_t _idx) :
+  charge(_evt.probeCharge[_idx]),
   pt(_evt.probePt[_idx]),
   eta(_evt.probeEta[_idx]),
   phi(_evt.probePhi[_idx]),

@@ -29,6 +29,8 @@ mithep::FittingUtils::createDataSet(TTree* _source, RooArgSet* _argset, char con
 
       // Apply cuts
 
+      if ( tag.charge == probe.charge) continue;
+      
       TLorentzVector pTag(tag.px, tag.py, tag.pz, tag.energy);
       TLorentzVector pProbe(probe.px, probe.py, probe.pz, probe.energy);
 

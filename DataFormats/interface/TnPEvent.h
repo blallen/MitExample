@@ -36,6 +36,7 @@ namespace mithep {
 
   public:
     UInt_t nPairs;
+    Float_t tagCharge[NMAX];
     Float_t tagPt[NMAX];
     Float_t tagEta[NMAX];
     Float_t tagPhi[NMAX];
@@ -43,6 +44,7 @@ namespace mithep {
     Float_t tagPy[NMAX];
     Float_t tagPz[NMAX];
     Float_t tagEnergy[NMAX];
+    Float_t probeCharge[NMAX];
     Float_t probePt[NMAX];
     Float_t probeEta[NMAX];
     Float_t probePhi[NMAX];

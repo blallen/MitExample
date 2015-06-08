@@ -12,7 +12,8 @@ ClassImp(mithep::NtuplesMod)
 mithep::NtuplesMod::NtuplesMod(char const* _name/* = "mithep::NtuplesMod"*/, char const* _title/* = "Flat-tree ntuples producer"*/) :
   BaseMod(_name, _title),
   fTagElectronsName("TagElectrons"),
-  fProbePhotonsName("ProbePhotons"),
+  fProbeElectronsName("ProbeElectrons"),
+  //fProbePhotonsName("ProbePhotons"),
   fTriggerObjectsName(mithep::Names::gkHltObjBrn),
   fTriggerMatchName(""),
   fTagElectrons(0),
@@ -93,11 +94,11 @@ mithep::NtuplesMod::Process()
 
   std::vector<Electron const*> probes;
   for (unsigned iP(0); iP != fProbeElectrons->GetEntries(); ++iP) {
-    Electron const& inPh(*fProbeElectrons->At(iP));
+    Electron const& inEle(*fProbeElectrons->At(iP));
 
     // apply some additional cuts to probe
 
-    probes.push_back(&inPh);
+    probes.push_back(&inEle);
   }
   
 
@@ -111,6 +112,7 @@ mithep::NtuplesMod::Process()
 
       auto&& pair(fEvent.addNew());
 
+      pair.first.charge = tag->Charge();
       pair.first.pt = tag->Pt();
       pair.first.eta = tag->Eta();
       pair.first.phi = tag->Phi();
@@ -119,6 +121,7 @@ mithep::NtuplesMod::Process()
       pair.first.pz = tag->Pz();
       pair.first.energy = tag->E();
 
+      pair.second.charge = probe->Charge();
       pair.second.pt = probe->Pt();
       pair.second.eta = probe->Eta();
       pair.second.phi = probe->Phi();
