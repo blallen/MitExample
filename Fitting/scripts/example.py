@@ -1,5 +1,23 @@
 import sys
 import ROOT
+from optparse import OptionParser
+
+### Read Rootfile name from command line
+parser = OptionParser()
+parser.add_option('-f', help='root file to make flat', dest='FileName', action='store', metavar='<name>')
+
+(opts, args) = parser.parse_args()
+
+mandatories = ['FileName']
+for m in mandatories:
+    if not opts.__dict__[m]:
+        print "\nMandatory option is missing\n"
+        parser.print_help()
+        exit(-1)
+
+FileName = opts.FileName.split('.')
+
+### Load Mit Root Libraries
 
 ROOT.gSystem.Load('libRooFit.so')
 ROOT.gSystem.Load('libMitExampleDataFormats.so')
@@ -27,9 +45,14 @@ def fitZpeak( mass, name ):
     dataset.plotOn(frame)
     spb.plotOn(frame)
     
+    #output.cd()
+    #frame.Write()
+
     canvas = ROOT.TCanvas()
     frame.Draw()
     canvas.SaveAs('DiEleMass_'+name+'.png')
+    
+
 
     mass.setRange('Zpeak_'+name, 80., 100.)
     mass.setRange('all_'+name,0.,maxmass)
@@ -45,13 +68,13 @@ def fitZpeak( mass, name ):
 
 ###
 
-source = ROOT.TFile.Open('ntuples_noid_skim.root')
+source = ROOT.TFile.Open(FileName[0]+'.root')
+#output = ROOT.TFile.Open(FileName[0]+'_fits.root', 'recreate')
 tree = source.Get('events')
 nEvents = tree.GetEntries()
 print 'Total number of events: '+str(nEvents)
 maxmass = 200.
 
-# Yutaro code
 workspace = ROOT.RooWorkspace('workspace')
 mass_noID = workspace.factory('mass_noID[0.,'+str(maxmass)+']')
 mass_passID = workspace.factory('mass_passID[0.,'+str(maxmass)+']')
