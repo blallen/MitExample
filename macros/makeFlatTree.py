@@ -18,6 +18,7 @@ FileName = opts.FileName.split('.')
 
 ### Make FlatTree
 
+print FileName[0]
 source = ROOT.TFile.Open(FileName[0]+'.root')
 tree = source.FindObjectAny('events')
 
