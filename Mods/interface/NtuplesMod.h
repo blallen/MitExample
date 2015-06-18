@@ -3,8 +3,8 @@
 
 #include "MitAna/TreeMod/interface/BaseMod.h"
 #include "MitAna/DataTree/interface/ElectronCol.h"
-#include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitAna/DataTree/interface/TriggerObjectCol.h"
+#include "MitAna/DataTree/interface/VertexFwd.h"
 
 #include "MitExample/DataFormats/interface/TnPEvent.h"
 
@@ -19,9 +19,9 @@ namespace mithep {
     void SetTagElectronsName(char const* _name) { fTagElectronsName = _name; }
     void SetPassElectronsName(char const* _name) { fPassElectronsName = _name; }
     void SetProbeElectronsName(char const* _name) { fProbeElectronsName = _name; }
-    void SetProbePhotonsName(char const* _name) { fProbePhotonsName = _name; }
     void SetTriggerObjectsName(char const* _name) { fTriggerObjectsName = _name; }
     void SetTriggerMatchName(char const* _name) { fTriggerMatchName = _name; }
+    void SetPVName(char const* _name) { fPVName = _name; }
 
   protected:
     void Process() override;
@@ -31,16 +31,16 @@ namespace mithep {
     TString fTagElectronsName;
     TString fPassElectronsName;
     TString fProbeElectronsName;
-    TString fProbePhotonsName;
     TString fTriggerObjectsName;
     TString fTriggerMatchName;
+    TString fPVName;
 
     ElectronCol const* fTagElectrons;
     ElectronCol const* fPassElectrons;
     ElectronCol const* fProbeElectrons;
-    PhotonCol const* fProbePhotons;
     TriggerObjectCol const* fTriggerObjects;
-
+    VertexCol const* fVertices;
+    
     TnPEvent fEvent;
     TTree* fNtuples;
 

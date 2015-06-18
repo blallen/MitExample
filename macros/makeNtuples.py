@@ -25,6 +25,7 @@ goodPVMod.SetMaxAbsZ(24.0)
 goodPVMod.SetMaxRho(2.0)
 goodPVMod.SetIsMC(False)
 goodPVMod.SetVertexesName('PrimaryVertexes')
+goodPVMod.SetOutputName('GoodVertexes')
 
 # e+ e- tag and probe
 eleIdMod_Tag = mithep.ElectronIDMod()
@@ -88,9 +89,9 @@ ntuplesMod.SetPassElectronsName('LooseElectrons')
 ntuplesMod.SetProbeElectronsName('NoIdElectrons')
 ntuplesMod.SetTriggerObjectsName('SingleElectronTriggerObjects')
 ntuplesMod.SetTriggerMatchName('hltEle27WP80TrackIsoFilter')
+ntuplesMod.SetPVName('GoodVertexes')
 
 ### Add mods for analysis ###
-
 analysis.AddSuperModule(hltMod)
 hltMod.Add(goodPVMod)
 goodPVMod.Add(eleIdMod_Tag)

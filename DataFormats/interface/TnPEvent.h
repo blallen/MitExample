@@ -25,7 +25,7 @@ namespace mithep {
 
     TnPPair addNew();
 
-    void clear() { nPairs = 0; }
+    void clear() { nPairs = 0; nVertices = 0; }
 
     void bookBranches(TTree&);
     void setAddress(TTree&);
@@ -36,7 +36,8 @@ namespace mithep {
 
   public:
     UInt_t nPairs;
-    Float_t tagCharge[NMAX];
+    UInt_t nVertices;
+    Int_t tagCharge[NMAX];
     Float_t tagPt[NMAX];
     Float_t tagEta[NMAX];
     Float_t tagPhi[NMAX];
@@ -44,7 +45,7 @@ namespace mithep {
     Float_t tagPy[NMAX];
     Float_t tagPz[NMAX];
     Float_t tagEnergy[NMAX];
-    Float_t probeCharge[NMAX];
+    Int_t probeCharge[NMAX];
     Float_t probePt[NMAX];
     Float_t probeEta[NMAX];
     Float_t probePhi[NMAX];

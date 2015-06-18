@@ -11,7 +11,7 @@ namespace mithep {
   public:
     Tag(TnPEvent&, UInt_t);
 
-    Float_t& charge;
+    Int_t& charge;
     Float_t& pt;
     Float_t& eta;
     Float_t& phi;

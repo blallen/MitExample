@@ -14,13 +14,15 @@ mithep::NtuplesMod::NtuplesMod(char const* _name/* = "mithep::NtuplesMod"*/, cha
   fTagElectronsName("TagElectrons"),
   fPassElectronsName("NoPassElectrons"),
   fProbeElectronsName("ProbeElectrons"),
-  //fProbePhotonsName("ProbePhotons"),
   fTriggerObjectsName(mithep::Names::gkHltObjBrn),
   fTriggerMatchName(""),
-  fTagElectrons(0),
-  fProbePhotons(0),
-  fEvent(),
-  fNtuples(0)
+  fPVName("GoodVertexes"), //
+  fTagElectrons(0), //
+  fPassElectrons(0),
+  fProbeElectrons(0),
+  fVertices(0),
+  fEvent(), //
+  fNtuples(0) //
 {
 }
 
@@ -30,9 +32,8 @@ mithep::NtuplesMod::Process()
   LoadEventObject(fTagElectronsName, fTagElectrons);
   LoadEventObject(fPassElectronsName, fPassElectrons);
   LoadEventObject(fProbeElectronsName, fProbeElectrons);
-  //LoadEventObject(fProbePhotonsName, fProbePhotons);
+  fVertices = GetObjThisEvt<VertexOArr>(fPVName);
 
-  //if (!fTagElectrons || !fProbePhotons) {
   if (!fTagElectrons || !fProbeElectrons || !fPassElectrons) {
     std::cerr << "Could not find electrons in the event." << std::endl;
     return;
@@ -147,6 +148,8 @@ mithep::NtuplesMod::Process()
       pair.second.passID = passID;
     }
   }
+
+  fEvent.nVertices = (UInt_t)fVertices->GetEntries();
 
   fNtuples->Fill();
 }

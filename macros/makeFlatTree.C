@@ -1,3 +1,4 @@
+
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
@@ -14,7 +15,7 @@ using namespace mithep;
 // using namespace RooFit;
 
 void makeFlatTree(TString inName = "/home/ballen/cms/hist/ntuples/merged/ntuples_SingleElectron+Run2012A-22Jan2013-v1+AOD_noskim.root",
-                     TString outName = "/home/ballen/cms/hist/ntuples/merged/ntuples_SingleElectron+Run2012A-22Jan2013-v1+AOD_noskim_flat.root") {
+                     TString outName = "/home/ballen/cms/root/ntuples_SingleElectron+Run2012A-22Jan2013-v1+AOD_noskim_flat.root") {
   
   std::cout << "input file: " << inName << endl;
   std::cout << "output file: " << outName << endl;
@@ -79,7 +80,7 @@ void makeFlatTree(TString inName = "/home/ballen/cms/hist/ntuples/merged/ntuples
     events->GetEntry(i);
     if ( i % 1000000 == 0) std::cout << "Event " << i << endl;
     for (unsigned j=0;j<nPairs; j++) {
-      if (tagCharge == probeCharge) continue;
+      if (tagCharge[j] == probeCharge[j]) continue;
 
       TLorentzVector vTag;
       vTag.SetPtEtaPhiE(tagPt[j],tagEta[j],tagPhi[j],tagEnergy[j]);

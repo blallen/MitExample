@@ -78,7 +78,7 @@ void runNtuples(const char *fileset    = "0000",
   HLTMod *hltMod = new HLTMod("HltMod");
   hltMod->AddTrigger("HLT_Ele27_WP80_v*");
   hltMod->SetBitsName("HLTBits");
-  hltMod->SetTrigObjsName("MyHltObjs");
+  hltMod->SetTrigObjsName("SingleElectronTriggerObjects");
   hltMod->SetAbortIfNotAccepted(isData);
   hltMod->SetPrintTable(kFALSE);
 
@@ -92,6 +92,7 @@ void runNtuples(const char *fileset    = "0000",
   goodPvFilterMod->SetMaxRho          (2.0);
   goodPvFilterMod->SetIsMC(!isData);
   goodPvFilterMod->SetVertexesName("PrimaryVertexes");
+  goodPvFilterMod->SetOutputName("GoodVertexes");
 
   //------------------------------------------------------------------------------------------------
   // object id and cleaning sequence
@@ -159,8 +160,9 @@ void runNtuples(const char *fileset    = "0000",
   ntuplesMod->SetTagElectronsName("TightElectrons");
   ntuplesMod->SetPassElectronsName("LooseElectrons");
   ntuplesMod->SetProbeElectronsName("NoIdElectrons");
-  ntuplesMod->SetTriggerObjectsName("MyHltObjs");
+  ntuplesMod->SetTriggerObjectsName("SingleElectronTriggerObjects");
   ntuplesMod->SetTriggerMatchName("hltEle27WP80TrackIsoFilter");
+  ntuplesMod->SetPVName("GoodVertexes");
 
   //------------------------------------------------------------------------------------------------
   // making analysis chain
