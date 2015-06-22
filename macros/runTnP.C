@@ -6,6 +6,7 @@
 #include "TMath.h"
 #include "TLorentzVector.h"
 #include "TCanvas.h"
+#include <utility>
 
 // RooFit Includes
 #include "RooRealVar.h"
@@ -19,46 +20,30 @@
 #include "RooFitResult.h"
 #include "RooPlot.h"
 #include "RooPolynomial.h"
+#include "RooGaussian.h"
+#include "RooPoisson.h"
 
 using namespace RooFit;
 
 TH1F* MassPlot(TTree *pairs, bool requireID, TString varName, Float_t minVal, Float_t maxVal) { 
 
-  // Float_t mass;
-  // T var;
-  // Int_t passID;
 
-  // pairs->SetBranchAddress("mass"+TString(requireID), &mass);
-  // pairs->SetBranchAddress(varName, &var);
-  // pairs->SetBranchAddress("passID", &passID);
-
-  // std::cout << "got branches" << endl;
-
-  TString plotName = TString::Format("mass_%s_%.2f_%.2f_",varName.Data(),minVal,maxVal)+TString(requireID ? "passID" : "noID");
+  TString plotName = TString::Format("mass_%s_%.1f_%.1f_",varName.Data(),minVal,maxVal)+TString(requireID ? "passID" : "noID");
   TH1F *hMass = new TH1F(plotName, "mass_{\ell\ell}", 200, 0., 200.);
   
-  TString cut = TString::Format("( %s > %f ) && ( %s < %f)", varName.Data(), minVal, varName.Data(), maxVal);
+  TString cut = TString::Format("( %s > %f ) && ( %s < %f) && (OS == 1)", varName.Data(), minVal, varName.Data(), maxVal);
   if (requireID) cut = cut + TString(" && (passID == 1)");
   pairs->Draw(TString("mass>>")+plotName,cut,"goff");
-
-  /*
-  Long64_t nEvents = pairs->GetEntries();
-  for (Long64_t i=0; i<nEvents; i++) {
-    pairs->GetEntry(i);
-    if (requireID)
-      if (!passID) continue;
-    hMass->Fill(mass);
-  }
-  */
   return hMass;
 }
 
-Double_t FitMassPlot(TH1F* hMass, /*TFile *storage,*/ Long64_t nEvents) {
+std::pair<Double_t, Double_t> FitMassPlot(TH1F* hMass /*, TFile *storage, Long64_t nEvents*/) {
   RooRealVar mass("mass", "mass", 0., 200.);
+  Long64_t nEvents = hMass->GetEntries();
   // RooAbsPdf *model = buildModel(mass);
 
-  RooRealVar *m0 = new RooRealVar("m0", "m0", 90., 50., 130.);
-  RooRealVar *width  = new RooRealVar("width", "width", 1.0, 0.0, 10.0);
+  RooRealVar *m0 = new RooRealVar("m0", "m0", 90., 85., 95.);
+  RooRealVar *width  = new RooRealVar("width", "width", 1.0, 0.0, 7.0);
   RooBreitWigner *zpeak = new RooBreitWigner("zpeak", "zpeak", mass, *m0, *width);
   RooBreitWigner *signal = new RooBreitWigner("signal", "signal", mass, *m0, *width);
 
@@ -75,17 +60,36 @@ Double_t FitMassPlot(TH1F* hMass, /*TFile *storage,*/ Long64_t nEvents) {
 
   // background
   RooRealVar *lambda = new RooRealVar("lambda", "lambda", 0., -100., 0.);
-  // RooExponential *background = new RooExponential("background", "background", mass, *lambda);
+  // RooExponential *exponential = new RooExponential("exponential", "exponential", mass, *lambda);
+  RooExponential *background = new RooExponential("background", "background", mass, *lambda);
+
   RooRealVar *c0 = new RooRealVar("c0","c0",0.,-50.,50.);
   RooRealVar *c1 = new RooRealVar("c1","c1",0.,-50.,50.);
   RooRealVar *c2 = new RooRealVar("c2","c2",0.,-50.,50.);
   RooRealVar *c3 = new RooRealVar("c3","c3",0.,-50.,50.);
   RooRealVar *c4 = new RooRealVar("c4","c4",0.,-50.,50.);
-  RooPolynomial *background = new RooPolynomial("background", "background", mass, RooArgList(*c0, *c1, *c2, *c3, *c4));
+  // RooPolynomial *background = new RooPolynomial("background", "background", mass, RooArgList(*c0, *c1, *c2, *c3, *c4));
+
+  RooRealVar *gmean = new RooRealVar("gmean", "gmean", 50., 0., 300.);
+  RooRealVar *gvar = new RooRealVar("gvar", "gvar", 1., 0., 1000.);
+  // RooGaussian *gaussian = new RooGaussian("gaussian", "gaussian", mass, *gmean, *gvar);
+  // RooGaussian *background = new RooGaussian("background", "background", mass, *gmean, *gvar);
+
+  RooRealVar *pmean = new RooRealVar("pmean", "pmean", 50., 0., 300.);
+  // RooPoisson *background = new RooPoisson("background", "background", mass, *pmean);
+  // RooPoisson *poisson = new RooPoisson("poisson", "poisson", mass, *pmean);
+
+  RooRealVar *nexp = new RooRealVar("nexp", "nexp", 50., 0., nEvents);
+  RooRealVar *ngau = new RooRealVar("ngau", "ngau", 50., 0., nEvents);
+  RooRealVar *npoi = new RooRealVar("npoi", "npoi", 50., 0., nEvents);
+  // RooAbsPdf *background = (RooAbsPdf*) new RooAddPdf("background", "background", RooArgList(*exponential, *gaussian), RooArgList(*nexp, *ngau));
+  // RooAbsPdf *background = (RooAbsPdf*) new RooAddPdf("background", "background", RooArgList(*exponential, *poisson), RooArgList(*nexp, *npoi));
+  // RooAbsPdf *background = (RooAbsPdf*) new RooAddPdf("background", "background", RooArgList(*exponential, *poisson, *gaussian), RooArgList(*nexp, *npoi, *ngau));
 
   // full model
-  RooRealVar *nsig = new RooRealVar("nsig", "nsig", 2000., 0., nEvents);
-  RooRealVar *nbkg = new RooRealVar("nbkg", "nbkg", 0., 0., nEvents);
+				    
+  RooRealVar *nsig = new RooRealVar("nsig", "nsig", 2000., 0., nEvents*1.5);
+  RooRealVar *nbkg = new RooRealVar("nbkg", "nbkg", 100., 0., nEvents);
   RooAbsPdf *model = (RooAbsPdf*) new RooAddPdf("model", "model", RooArgList(*signal, *background), RooArgList(*nsig, *nbkg));
   // RooAbsPdf *model = (RooAbsPdf*) new RooAddPdf("model", "model", RooArgList(*signal), RooArgList(*nsig));
 
@@ -102,7 +106,7 @@ Double_t FitMassPlot(TH1F* hMass, /*TFile *storage,*/ Long64_t nEvents) {
 
   TCanvas *canvas = new TCanvas();
   frame->Draw("goff");
-  canvas->SaveAs(TString(TString("plots/")+hMass->GetName())+TString("_BW.pdf"));
+  canvas->SaveAs(TString(TString("plots/")+hMass->GetName())+TString("_Full.png"));
 
   mass.setRange("Zpeak", 80., 100.);
   mass.setRange("all",0.,200.);
@@ -110,11 +114,12 @@ Double_t FitMassPlot(TH1F* hMass, /*TFile *storage,*/ Long64_t nEvents) {
 
   Double_t fPeak = signal->createIntegral( argset, "Zpeak")->getVal() / signal->createIntegral(argset, "all")->getVal();
   Double_t nPeak = fPeak * nsig->getVal();
+  Double_t nErr = fPeak * nsig->getError();
 
-  return nPeak;
+  return std::make_pair(nPeak, nErr);
 }
 
-Double_t CalcEff(TTree *pairs, TString varName, Float_t minVal, Float_t maxVal){
+std::pair<Double_t, Double_t> CalcEff(TTree *pairs, TString varName, Float_t minVal, Float_t maxVal){
   TH1F* hPass = MassPlot( pairs, true, varName, minVal, maxVal);
   std::cout << "made passing mass plot" << endl;
   TH1F* hTotal = MassPlot( pairs, false, varName, minVal, maxVal);
@@ -122,28 +127,32 @@ Double_t CalcEff(TTree *pairs, TString varName, Float_t minVal, Float_t maxVal){
 
   Long64_t nEvents = pairs->GetEntries();
 
-  Double_t nPass = FitMassPlot(hPass, nEvents);
-  std::cout << "got number of pass pairs: " << nPass << endl;
-  Double_t nTotal = FitMassPlot(hTotal, nEvents);
-  std::cout << "got number of total pairs: " << nTotal << endl;
-  Double_t eff = nPass/nTotal;
+  std::pair<Double_t, Double_t> pass = FitMassPlot(hPass);
+  std::cout << "got number of pass pairs: " << pass.first << endl;
+  std::pair<Double_t, Double_t> total = FitMassPlot(hTotal);
+  std::cout << "got number of total pairs: " << total.first << endl;
+  Double_t eff = pass.first/total.first;
+  Double_t passErr = pass.second/pass.first;
+  Double_t totalErr = total.second/total.first;
+  Double_t err = TMath::Sqrt(passErr*passErr + totalErr*totalErr)* eff;
 
-  return eff;
+  return std::make_pair(eff, err);
 }
 
 TH1F* DiffEffPlot(TTree *pairs, TFile *storage, TString varName, Float_t nBins, Float_t minVal, Float_t maxVal) {
   Double_t step = (maxVal - minVal) / nBins;
   TH1F* hDiffEff = new TH1F(varName, TString("Eff for ")+varName, nBins, minVal, maxVal);
   for (int i = 0; i < nBins; i++) {
-    Double_t eff = CalcEff(pairs, varName, (minVal + i*step), (minVal + (i+1)*step));
-    hDiffEff->SetBinContent(i+1, eff);
+    std::pair<Double_t, Double_t> eff = CalcEff(pairs, varName, (minVal + i*step), (minVal + (i+1)*step));
+    hDiffEff->SetBinContent(i+1, eff.first);
+    hDiffEff->SetBinError(i+1, eff.second);
   }
   storage->cd();
   hDiffEff->Write();
   return hDiffEff;
 }
 
-void runTnP(TString inName = "/home/ballen/cms/root/ntuples_SingleElectron+Run2012A-22Jan2013-v1+AOD_noskim_flat.root", TString outName = "/home/ballen/cms/root/ntuples_SingleElectron+Run2012A-22Jan2013-v1+AOD_noskim_plots.root") {
+void runTnP(TString inName = "/home/ballen/cms/root/ntuples_SingleElectron+Run2012All-22Jan2013-v1+AOD_noskim_flat.root", TString outName = "/home/ballen/cms/root/ntuples_SingleElectron+Run2012All-22Jan2013-v1+AOD_noskim_plots.root") {
 
   std::cout << "can't do anything" << endl;
 
@@ -157,9 +166,10 @@ void runTnP(TString inName = "/home/ballen/cms/root/ntuples_SingleElectron+Run20
 
   TFile *outFile = new TFile(outName, "recreate");
 
-  TH1F* hPtEff = DiffEffPlot( pairs, outFile, "pt", 9., 10., 100.);
-  TH1F* hEtaEff = DiffEffPlot( pairs, outFile, "eta", 48, -2.4, 2.4);
-  TH1F* hPhiEff = DiffEffPlot( pairs, outFile, "phi", 64, -3.2, 3.2);
+  // TH1F* hPtEff = DiffEffPlot( pairs, outFile, "pt", 11., 10., 120.);
+  // TH1F* hEtaEff = DiffEffPlot( pairs, outFile, "eta", 24, -2.4, 2.4);
+  TH1F* hPhiEff = DiffEffPlot( pairs, outFile, "phi", 1, -3.5, 3.5);
+  // TH1F* hVertEff = DiffEffPlot( pairs, outFile, "nVertices", 30, 0.5, 30.5);
 
   // std::cout << "Efficiency is " << eff << endl;
   std::cout << "done" << endl;

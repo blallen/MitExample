@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
@@ -20,17 +20,17 @@ void makeFlatTree(TString inName = "/home/ballen/cms/hist/ntuples/merged/ntuples
   std::cout << "input file: " << inName << endl;
   std::cout << "output file: " << outName << endl;
 
-  TFile *fIn = new TFile(inName);
+  TFile *fIn = new TFile(inName+TString(".root"));
   TTree *events = (TTree*)fIn->FindObjectAny("events");
   unsigned nEvents = events->GetEntries();
   
-  Float_t tagCharge[64]; // might convert to Int_t at some point
+  Int_t tagCharge[64]; // might convert to Int_t at some point
   Float_t tagPt[64];
   Float_t tagEta[64];
   Float_t tagPhi[64];
   Float_t tagEnergy[64];
   
-  Float_t probeCharge[64]; // might convert to Int_t at some point
+  Int_t probeCharge[64]; // might convert to Int_t at some point
   Float_t probePt[64];
   Float_t probeEta[64];
   Float_t probePhi[64];
@@ -38,9 +38,7 @@ void makeFlatTree(TString inName = "/home/ballen/cms/hist/ntuples/merged/ntuples
   UInt_t  probePassID[64];
 
   UInt_t  nPairs;
-  /*
-    UInt_t nVertices;
-  */
+  UInt_t  nVertices;
   
   events->SetBranchAddress("tag.charge",&tagCharge);
   events->SetBranchAddress("tag.pt",&tagPt);
@@ -56,31 +54,31 @@ void makeFlatTree(TString inName = "/home/ballen/cms/hist/ntuples/merged/ntuples
   events->SetBranchAddress("probe.passID",&probePassID);
 
   events->SetBranchAddress("nPairs",&nPairs);
-  /*
-    events->SetBranchAddress("nVertices",&nVertices);
-  */
-
-  TFile *fOut = new TFile(outName,"RECREATE");
+  events->SetBranchAddress("nVertices",&nVertices);
+  
+  TFile *fOut = new TFile(outName+TString("_flat.root"),"RECREATE");
   TTree *tOut = new TTree("pairs","pairs");
 
-  Float_t mass; 
+  Float_t mass;
   Float_t eta;
   Float_t pt;
   Float_t phi;
-  Int_t passID;
+  UInt_t passID;
+  UInt_t OS;
 
   tOut->Branch("mass",&mass);
+  tOut->Branch("passID",&passID);
+  tOut->Branch("OS",&OS);
   tOut->Branch("pt",&pt);
   tOut->Branch("eta",&eta);
   tOut->Branch("phi",&phi);
-  tOut->Branch("passID",&passID);
-  // tOut->Branch("nVertices",&nVertices);
+  tOut->Branch("nVertices",&nVertices);
   
   for (unsigned i=0; i<nEvents; i++) {
     events->GetEntry(i);
     if ( i % 1000000 == 0) std::cout << "Event " << i << endl;
     for (unsigned j=0;j<nPairs; j++) {
-      if (tagCharge[j] == probeCharge[j]) continue;
+      
 
       TLorentzVector vTag;
       vTag.SetPtEtaPhiE(tagPt[j],tagEta[j],tagPhi[j],tagEnergy[j]);
@@ -88,10 +86,11 @@ void makeFlatTree(TString inName = "/home/ballen/cms/hist/ntuples/merged/ntuples
       vProbe.SetPtEtaPhiE(probePt[j],probeEta[j],probePhi[j],probeEnergy[j]);
       
       mass = (vTag+vProbe).M();
+      OS = (tagCharge[j] == probeCharge[j]) ? 0 : 1;
+      passID = probePassID[j];
       pt = probePt[j];
       eta = probeEta[j];
       phi = probePhi[j];
-      passID = probePassID[j];
       
       tOut->Fill();
     }
